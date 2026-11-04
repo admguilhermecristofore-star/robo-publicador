@@ -328,7 +328,12 @@ def main() -> int:
     sub.add_parser("descobrir-instagram", help="Acha os IDs dos perfis e grava no .env").set_defaults(func=cmd_descobrir)
 
     args = p.parse_args()
-    return args.func(args)
+    try:
+        return args.func(args)
+    except Exception as e:
+        log.exception("Comando '%s' falhou", args.comando)
+        print(f"\nERRO: {e}\n")
+        return 1
 
 
 if __name__ == "__main__":
