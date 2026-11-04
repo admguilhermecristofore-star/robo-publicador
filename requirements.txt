@@ -1,0 +1,13 @@
+# --- Google (Sheets, Drive, YouTube) ---
+google-api-python-client>=2.150.0
+google-auth>=2.35.0
+google-auth-oauthlib>=1.2.1
+google-auth-httplib2>=0.2.0
+gspread>=6.1.0
+
+# --- Meta Graph API (Instagram/Facebook) e TikTok: chamadas HTTP diretas ---
+requests>=2.32.0
+
+# --- Utilitários ---
+python-dotenv>=1.0.1
+tzdata>=2024.1          # fuso horário America/Sao_Paulo no Windows

@@ -1,0 +1,60 @@
+name: Robo de publicacao  # publica na Data Postar
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"   # a cada 30 min (horário UTC; o GitHub pode atrasar alguns minutos)
+  workflow_dispatch:
+    inputs:
+      comando:
+        description: "O que rodar"
+        type: choice
+        default: fila
+        options: [fila, publicar]
+
+concurrency:
+  group: robo
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  rodar:
+    # agendamento só roda quando a variável ROBO_ATIVO = sim (Settings → Variables)
+    if: github.event_name != 'schedule' || vars.ROBO_ATIVO == 'sim'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      TZ: America/Sao_Paulo
+      SPREADSHEET_ID: ${{ vars.SPREADSHEET_ID }}
+      SHEET_NAME: Conteúdos
+      TIMEZONE: America/Sao_Paulo
+      REDES_ATIVAS: ${{ vars.REDES_ATIVAS || 'instagram,instagram2' }}
+      YOUTUBE_PRIVACY: private
+      MAX_POR_EXECUCAO: "5"
+      YOUTUBE_ANTECEDENCIA_HORAS: "24"
+      ATRASO_MAX_HORAS: "12"
+      META_API_VERSION: v23.0
+      META_BUSINESS_ID: ${{ vars.META_BUSINESS_ID }}
+      INSTAGRAM_ID_1: ${{ vars.INSTAGRAM_ID_1 }}
+      INSTAGRAM_ID_2: ${{ vars.INSTAGRAM_ID_2 }}
+      TIKTOK_REDIRECT_URI: https://admguilhermecristofore-star.github.io/guilhermecristofore-home/publicador/callback.html
+      TIKTOK_PRIVACY: SELF_ONLY
+      GOOGLE_TOKEN_JSON: ${{ secrets.GOOGLE_TOKEN_JSON }}
+      META_TOKEN: ${{ secrets.META_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rodar
+        env:
+          COMANDO: ${{ github.event_name == 'schedule' && 'publicar' || inputs.comando }}
+        run: |
+          if [ "$COMANDO" = "publicar" ]; then
+            python main.py publicar
+          else
+            python -m services.sheets
+          fi
