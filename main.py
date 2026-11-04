@@ -277,6 +277,20 @@ def cmd_tiktok(_args) -> int:
     return 0
 
 
+def cmd_teste_tiktok(_args) -> int:
+    """Publica PRIVADO (Somente eu) no TikTok o primeiro vídeo achado na pasta videos (ou videos/postados)."""
+    pastas = [config.VIDEOS_DIR, config.VIDEOS_DIR / "postados"]
+    video = next((f for d in pastas if d.exists() for f in sorted(d.iterdir())
+                  if f.suffix.lower() in (".mp4", ".mov", ".m4v", ".webm")), None)
+    if not video:
+        print("\nNenhum vídeo na pasta videos. Coloque um .mp4 lá e rode de novo.\n")
+        return 1
+    print(f"\nEnviando PRIVADO para o TikTok: {video.name}\n(pode levar 1-3 min)\n")
+    pid = tiktok.publicar_video(video, "Teste do robô de publicação", privacidade="SELF_ONLY")
+    print(f"\nOK! Enviado ({pid}). Confira no app do TikTok > seu perfil > vídeos privados (cadeado).\n")
+    return 0
+
+
 def cmd_kit_tiktok(args) -> int:
     from services import kit_tiktok
     caminho = kit_tiktok.gerar(args.dias)
@@ -307,6 +321,7 @@ def main() -> int:
     pk.add_argument("--dias", type=int, help="Quantos dias à frente (padrão TIKTOK_DIAS do .env)")
     pk.set_defaults(func=cmd_kit_tiktok)
     sub.add_parser("conectar-tiktok", help="Autoriza o robô no TikTok").set_defaults(func=cmd_conectar_tiktok)
+    sub.add_parser("teste-tiktok", help="Posta um vídeo PRIVADO de teste no TikTok").set_defaults(func=cmd_teste_tiktok)
     sub.add_parser("tiktok", help="Mostra o perfil do TikTok conectado").set_defaults(func=cmd_tiktok)
     sub.add_parser("contas", help="Mostra os perfis do Instagram conectados").set_defaults(func=cmd_contas)
     sub.add_parser("salvar-token", help="Grava no .env o token copiado da Meta").set_defaults(func=cmd_salvar_token)
