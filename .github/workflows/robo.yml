@@ -12,7 +12,7 @@ on:
         options: [fila, publicar]
 
 concurrency:
-  group: robo
+  group: robo-publicador
   cancel-in-progress: false
 
 permissions:
